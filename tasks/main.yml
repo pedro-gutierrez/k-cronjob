@@ -1,0 +1,14 @@
+---
+ - name: Delete {{ name }} cronjob
+   shell: "kubectl delete cronjob {{ name }} --namespace={{ ns }}"
+   ignore_errors: yes
+
+ - name: Wait for {{ name }} cronjob to be deleted
+   shell: "kubectl get cronjobs --namespace={{ ns }}"
+   register: result
+   until: result.stdout.find(name) == -1
+   retries: "{{ retry.max }}"
+   delay: "{{ retry.delay }}"
+
+ - name: "Create {{ name }} cronjob (from file: {{ yamls }}/{{ file }}-cronjob.yml)"
+   shell: "kubectl create -f {{ yamls }}/{{ file }}-cronjob.yml"
